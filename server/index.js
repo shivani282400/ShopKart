@@ -18,8 +18,18 @@ if (missingEnv.length > 0) {
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
+  origin: function(origin, callback) {
+    const allowed = [
+      'http://localhost:5173',
+      process.env.CLIENT_URL,
+    ];
+    if (!origin || allowed.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 
 // Rate limiting
